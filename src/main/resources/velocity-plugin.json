@@ -1,0 +1,9 @@
+{
+  "id": "authy",
+  "name": "Authy",
+  "version": "${version}",
+  "main": "hu.jgj52.authy.Authy",
+  "authors": [
+    "JGJ52"
+  ]
+}
