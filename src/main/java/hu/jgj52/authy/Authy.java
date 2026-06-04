@@ -11,6 +11,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.slf4j.Logger;
 
 import javax.sql.DataSource;
@@ -97,7 +98,7 @@ public class Authy {
 
             ResultSet rs = ps.executeQuery();
 
-            String token = rs.next() ? "$" + rs.getString("token") : "";
+            String token = rs.next() ? "$" + rs.getString("token") + "$" : "$-$";
 
             event.setResult(
                     PreLoginEvent.PreLoginComponentResult.denied(
@@ -106,7 +107,10 @@ public class Authy {
                                     .append(Component.newline())
                                     .append(Component.text(token))
                                     .append(Component.newline())
-                                    .append(Component.translatable("capey.message.token.share").color(NamedTextColor.RED))
+                                    .append(Component.newline())
+                                    .append(Component.translatable("capey.message.token.share").color(NamedTextColor.RED).decorate(TextDecoration.BOLD))
+                                    .append(Component.newline())
+                                    .append(Component.translatable("capey.message.token.auto").color(NamedTextColor.GREEN))
                     )
             );
         } catch (SQLException e) {
