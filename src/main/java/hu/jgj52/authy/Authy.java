@@ -10,6 +10,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 
 import javax.sql.DataSource;
@@ -101,11 +102,11 @@ public class Authy {
             event.setResult(
                     PreLoginEvent.PreLoginComponentResult.denied(
                             Component.empty()
-                                    .append(Component.translatable("capey.message.token.your"))
+                                    .append(Component.translatable("capey.message.token.your").color(NamedTextColor.GREEN))
                                     .append(Component.newline())
                                     .append(Component.text(token))
                                     .append(Component.newline())
-                                    .append(Component.translatable("capey.message.token.share"))
+                                    .append(Component.translatable("capey.message.token.share").color(NamedTextColor.RED))
                     )
             );
         } catch (SQLException e) {
