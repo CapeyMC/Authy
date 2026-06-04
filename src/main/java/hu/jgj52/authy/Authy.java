@@ -96,11 +96,16 @@ public class Authy {
 
             ResultSet rs = ps.executeQuery();
 
-            String token = rs.next() ? rs.getString("token") : "";
+            String token = rs.next() ? "$" + rs.getString("token") : "";
 
             event.setResult(
                     PreLoginEvent.PreLoginComponentResult.denied(
-                            Component.text(token)
+                            Component.empty()
+                                    .append(Component.translatable("capey.message.token.your"))
+                                    .append(Component.newline())
+                                    .append(Component.text(token))
+                                    .append(Component.newline())
+                                    .append(Component.translatable("capey.message.token.share"))
                     )
             );
         } catch (SQLException e) {
