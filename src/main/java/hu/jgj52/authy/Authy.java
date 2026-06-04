@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
+import com.velocitypowered.api.event.ResultedEvent;
+import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
@@ -86,22 +88,38 @@ public class Authy {
     }
 
     @Subscribe
-    public void onLogin(PreLoginEvent event) {
-        if (event.getUniqueId() == null) return;
+    public void onLogin(LoginEvent event) {
         try (Connection conn = ds.getConnection()) {
             PreparedStatement ps = conn.prepareStatement("""
                     SELECT token FROM players WHERE uuid = ?::uuid
                     LIMIT 1
             """);
 
-            ps.setString(1, event.getUniqueId().toString());
+            ps.setString(1, event.getPlayer().getUniqueId().toString());
 
             ResultSet rs = ps.executeQuery();
 
-            String token = rs.next() ? "$" + rs.getString("token") + "$" : "$-$";
+            String token;
+
+            if (rs.next()) {
+                token = "$" + rs.getString("token") + "$";
+            } else {
+                PreparedStatement st = conn.prepareStatement("""
+                        INSERT INTO players (uuid)
+                        VALUES (?::uuid)
+                        RETURNING token
+                """);
+
+                st.setString(1, event.getPlayer().getUniqueId().toString());
+
+                ResultSet res = st.executeQuery();
+                if (!res.next()) return;
+
+                token = "$" + res.getString("token") + "$";
+            }
 
             event.setResult(
-                    PreLoginEvent.PreLoginComponentResult.denied(
+                    ResultedEvent.ComponentResult.denied(
                             Component.empty()
                                     .append(Component.translatable("capey.message.token.your").color(NamedTextColor.GREEN))
                                     .append(Component.newline())
